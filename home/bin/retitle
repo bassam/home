@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Changes the terminal's and screen's titles to whatever text passed
 # in (or to the previously set title if no arguments are provided).
 RETITLE_DEFAULT=sh
