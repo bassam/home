@@ -1,0 +1,12 @@
+#!/bin/bash
+
+scp() 
+{
+    local sshconfig
+
+    sshconfig=$(get_ssh_config) 
+    /usr/bin/scp -F "$sshconfig" "$@"
+    rm "$sshconfig"
+}
+
+scp $*

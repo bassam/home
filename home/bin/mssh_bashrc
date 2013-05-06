@@ -1,0 +1,632 @@
+# -*- Mode: shell-script -*-
+
+[ -f /etc/profile ] && source /etc/profile
+[ -f "${HOME}/.bashrc" ] && source "${HOME}/.bashrc"
+
+if [ "$TERM" = 'screen' ] && which busybox >/dev/null 2>&1; then
+    # allow term apps to work properly, even in screen
+    export TERM=xterm-color
+fi
+
+export SYMROOT='/root'
+
+if [ -z "$SYMNAME" ]; then
+    if [ -n "$HOSTNAME" ]; then
+        export SYMNAME="$HOSTNAME"
+    else
+        export SYMNAME="$(hostname)"
+    fi
+fi
+
+[ -z "$USER" ] && export USER="$(id -n -u)"
+
+if [ -z "$SYMUSER" ]; then
+    if [ -z "$SUDO_USER" ]; then
+        export SYMUSER="$USER"
+    else
+        export SYMUSER="$SUDO_USER"
+    fi
+fi
+
+if [ `id -u` -eq 0 ]; then
+    iamroot=true
+    cd "$HOME"
+    if [ -n "${SUDO_USER}" ]; then
+        # use caller's ssh config if running under sudo
+        alias ssh="ssh -F ~${SYMUSER}/.ssh/mssh.config"
+        alias scp="scp -F ~${SYMUSER}/.ssh/mssh.config"
+    elif [ -f "${HOME}/.ssh/mssh.config" ]; then
+        alias ssh="ssh -F \"${HOME}/.ssh/mssh.config\""
+        alias scp="scp -F \"${HOME}/.ssh/mssh.config\""
+    fi
+else
+    iamroot=false
+fi
+
+# set up sudo command if we are not root and sudo is around
+if ! $iamroot && which sudo >/dev/null 2>&1; then
+    sudo='sudo'
+    sudo_i='sudo -i'
+else
+    sudo=
+    sudo_i=
+fi
+
+# add "privileged" directories prefixed to path
+for d in /usr/local/sbin /usr/sbin /sbin; do
+    if [ -d "$d" ]; then
+        echo "$PATH" | grep -E "(^|:)$d" >/dev/null 2>&1 || \
+            export PATH="${d}:${PATH}"
+    fi
+done
+
+# add other useful directories postfixed to path
+for d in \
+    "${HOME}/bin" \
+    "/Developer/usr/bin" \
+    "${SYMROOT}/config/ec2" \
+    "${SYMROOT}/config/softlayer" \
+    "${SYMROOT}/config/s3sync"
+do
+    if [ -d "$d" ]; then
+        echo "$PATH" | grep -E ":${d}(:|\$)" >/dev/null 2>&1 || \
+            export PATH="${PATH}:$d"
+    fi
+done
+
+# set up f99 to allow normal user to use s3logs
+if ! $iamroot && [ "$SYMNAME" = 'frontend99.control' ]; then
+    if [ ! -f "${HOME}/.s3curl" ]; then
+        $sudo cp "${SYMROOT}/.s3curl" "$HOME"
+        $sudo chown "${USER}:${USER}" "${HOME}/.s3curl"
+    fi
+    alias s3logs="${SYMROOT}/config/ec2/s3logs"
+fi
+
+# if not root, replace existing ssh config with our own
+if ! $iamroot && ! test -L "${HOME}/.ssh/config" && test "$SYMUSER" = "$(id -un)"; then
+    [ -f "${HOME}/.ssh/config" ] && mv -f "${HOME}/.ssh/config" "${HOME}/.ssh/config.orig"
+    ln -s mssh.config "${HOME}/.ssh/config"
+fi
+
+if test -n "$RUNNING_ON_EC2" && echo "$SERVER_NAME" | grep -vq '^monitoring'; then
+    if [ -f "/tmp/.load_balancer_name" ]; then
+        source /tmp/.load_balancer_name
+    else
+        LOAD_BALANCER_NAME=`ec2-get-instance-property LoadBalancer`
+        echo "LOAD_BALANCER_NAME=\"${LOAD_BALANCER_NAME}\"" > /tmp/.load_balancer_name
+    fi
+
+    export AWS_CREDENTIAL_FILE="${HOME}/.aws-keys-${DEPLOYMENT_ACCOUNT}"
+
+    if [ -f "$AWS_CREDENTIAL_FILE" ]; then
+        # this is needed for using the s3sync commands
+        eval $(sed -e 's/AWSAccessKeyId=\(.*\)/export AWS_ACCESS_KEY_ID='\''\1'\''/' \
+            -e 's/AWSSecretKey=\(.*\)/export AWS_SECRET_ACCESS_KEY='\''\1'\''/' $AWS_CREDENTIAL_FILE)
+    fi
+fi
+
+# figure out which download tool to use
+if which curl >/dev/null 2>&1; then
+    http_get='curl -k'
+else
+    http_get='wget -q --no-check-certificate -O -'
+fi
+
+rootme()
+{
+    echo 'Escalating to ROOT user...'
+    $1 $sudo su root -c \
+"SYMNAME=${SYMNAME} SSH_AUTH_SOCK=${SSH_AUTH_SOCK} \
+exec /bin/bash --rcfile \"${HOME}/.mssh_bashrc.$SYMUSER\" -i"
+}
+
+if [ "$SYMNAME" = 'test.symform.com' ]; then
+    deployment=development
+else
+    eval `echo "$SYMNAME" | sed -n 's/\(.*\)\.\(.*\)/name=\1;deployment=\2/p'`
+fi
+
+if [ "$deployment" = 'control' -a "$name" != 'frontend99' ]; then
+    title="\033[39;41m PRODUCTION \033[0m "
+elif ! $iamroot && [ -d "${SYMROOT}/config" -a "$deployment" != 'control' -a -z "$NOROOTME" ]; then
+    # automatically run as root if we are running in a deployed instance
+    # (detected by existence of /root/config)
+    rootme exec
+fi
+
+if $iamroot; then
+    dispuser="\033[0;1;31m-[ ROOT ]-\033[0;1;35m ${SYMNAME}"
+else
+    dispuser="${USER}@${SYMNAME}"
+fi
+
+HISTFILE="${HOME}/.bash_history_${SYMUSER}"
+export PROMPT_COMMAND="
+  LASTEXIT=\$?;
+  echo -n -e \"${title}\\033[36m\${dispuser}\";
+  [ \$LASTEXIT -ne 0 ] && echo -n -e \" \\033[1;31m[\${LASTEXIT}]\\033[0m\";
+  echo -e \" \\033[33m\${PWD}\\033[0m\";"
+export PS1='> '
+export PS2=' '
+
+HISTCONTROL=ignoredups:ignorespace:erasedups
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+if shopt >/dev/null 2>&1; then
+    shopt -s histappend
+    shopt -s cdspell
+    shopt -s checkwinsize
+fi
+
+# this is necessary for called things like ruby to access the var...
+export COLUMNS
+export LINES
+
+# export TZ=UTC
+export MYSQL_HISTFILE="${HOME}/.mysql_history_${SYMUSER}"
+export EDITOR=vi
+
+alias ll='ls -al'
+alias l='ls -hal'
+alias ..='cd ..'
+alias ps='myps'
+alias less='less -Rginm'
+alias who='who -Ha'
+alias pstree='\ps auxwwwf'
+alias topdump='top -b -n 1'
+alias hogs='uptime;echo "%CPU  PID";\ps -eo pcpu,pid -o comm= h | sort -k1 -n -r | head'
+alias vhogs='free;echo "   VSZ   RSS   PID";\ps -eo vsize,rss,pid -o comm= h | sort -k1 -n -r | head'
+alias rhogs='free;echo "   RSS   VSZ   PID";\ps -eo rss,vsize,pid -o comm= h | sort -k1 -n -r | head'
+alias dirhogs='find -xdev -type d -exec du -sS \{\} \; | sort -n | tail -n 10'
+alias funcs='declare -F'
+alias func='declare -f'
+alias awatch='tail -qFn0 /var/log/symform/apache-access* | ${SYMROOT}/config/ops/apache_stats.rb -watch rate /tmp/stats-${SYMUSER}.yml'
+alias memcache_stats='echo -e "stats\nquit\n" | nc -n 127.0.0.1 11211'
+
+# Some systems default rm to ask before removal.
+alias rm 2>&1 | grep -qFe '-i' && unalias rm
+
+#fixme: this guy doesn't grab the most recent (the oldest instead)
+alias apachetop='apachetop -f /var/log/symform/apache-access*'
+
+shpath="$(which bash 2>/dev/null)"
+if [ -n "$shpath" ]; then
+    alias screen='screen -s '"$shpath"' -h 10000 -S "${SYMUSER}"'
+else
+    alias screen='screen -h 10000 -S "${SYMUSER}"'
+fi
+
+export apache_stats_oid='.1.3.6.1.4.2.8'
+alias symwalk='snmpwalk -Cc -On -v2c -csymform 127.0.0.1'
+
+# enable color support of ls and also add handy aliases
+export CLICOLOR=1
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+if ! which less >/dev/null 2>&1; then
+    # e.g. busybox on qnap does not have less
+    alias less='vi -RMmy'
+fi
+
+if ! which sha1sum >/dev/null 2>&1; then
+    # e.g. busybox on qnap does not have less
+    alias sha1sum='openssl sha1'
+fi    
+
+if [ "$(uname -s 2>/dev/null)" = 'Darwin' ]; then
+    tf=`mktemp /tmp/pstree.XXXXXX`
+    cat <<EOF >$tf
+fmt   = "%-5s %-5s %-5s %-5s %-10s %-8s %-10s %s\n"
+title = nil
+procs = {}
+kids  = Hash.new{|h,k|h[k]=[]}
+
+print_proc = Proc.new do |level, pid|
+    if me = procs[pid]
+        # first make sure we don't have a parent not yet printed...
+        if procs.key?(me[2])
+            # puts ">>> found #{me[2]} as dad for #{pid}"
+            print_proc.call(level, me[2])
+            next
+        end
+        procs.delete(pid)
+        if level > 0
+            spc = level == 1 ? '' : '    '
+            me[-1] = ' ' << spc*(level-1) << '\_ ' << me[-1]
+        end
+        printf(fmt, *me)
+        if pids = kids.delete(pid)
+            pids.sort.each{|pid| print_proc.call(level + 1, pid)}
+        end
+    else
+        puts "*** missing #{pid}"
+    end
+end
+
+\`\ps -axf\`.each do |line|
+    (uid, pid, ppid, c, stime, tty, time, *cmd) = line.strip.split(/\s+/)
+    proc = [uid, pid, ppid, c, stime, tty, time, cmd.join(' ')]
+    if uid == 'UID'
+        title = proc
+    else
+        3.times{|i| proc[i] = proc[i].to_i}
+        procs[proc[1]] = proc
+        kids[proc[2]] << proc[1]
+    end
+end
+
+printf(fmt, *title)
+print_proc.call(-1, 1)
+EOF
+    trap "rm -f $tf" 0
+    alias pstree="ruby $tf"
+fi
+
+alias rootsql='mysql --defaults-file=/etc/mysql/debian.cnf'
+if [ -f /etc/mysql/debian.cnf ]; then
+    if [ "$deployment" = 'development' ]; then
+        reset_database()
+        {
+            local ans
+            read -p '*** DROP DATABASES -- Are you sure? (y|n) ' ans
+            if [ "$ans" = 'y' ]; then
+                echo 'dropping databases...'
+                # iterate each one so mysql doesn't stop us from dropping a
+                # later one because of an earlier failure
+                local db
+                for db in Account Block Configuration FileSystem Global; do
+                    rootsql -e "drop database $db"
+                done
+                echo 'removing nodes...'
+                rm -rf /vol/nodes/*
+            fi
+        }
+
+        reset_nodes()
+        {
+            local ans
+            read -p '*** RESET ALL NODES -- Are you sure? (y|n) ' ans
+            if [ "$ans" = 'y' ]; then
+                "${SYMROOT}/config/nodectl" stop
+                rm -rf /vol/nodes/*/fragments
+                "${SYMROOT}/config/nodectl" start
+            fi
+        }
+    fi
+else
+    unalias rootsql
+fi
+
+# a poor-man's who for systems without (simply reports all other ssh connections)
+poor_who()
+{
+    netstat -tn 2>/dev/null | grep :22 | grep -v `echo $SSH_CONNECTION | cut -d' ' -f2`
+}
+
+ptop()
+{
+    top -c `pgrep "$@" | sed -E 's/(^| )/ -p /g'`
+}
+
+penv()
+{
+    tr '\0' '\n' < /proc/$1/environ | sort
+}
+
+if ls -l /bin/ps | grep -q busybox; then
+    myps()
+    {
+        \ps w | awk '{if(NR==1 || (tolower($0) ~ /'"$*"'/ && ! / awk .if.NR/)){print}}'
+    }
+else
+    myps()
+    {
+        \ps auxwwww | awk '{if(NR==1 || (tolower($0) ~ /'"$*"'/ && ! / awk .if.NR/)){print}}'
+    }
+fi
+
+mywhich()
+{
+    local found=false
+    \which "$@" 2>/dev/null && found=true
+    alias "$@" 2>/dev/null && found=true
+    func "$@" 2>/dev/null && found=true
+    $found
+}
+alias which=mywhich
+
+if which gzcat >/dev/null 2>&1; then
+    zcat=gzcat
+else
+    zcat=zcat
+fi
+
+logcat()
+{
+    for f in `ls -rt ${1}* | grep -v '\.config$'`; do
+        if [ 'gz' = "${f##*.}" ]; then
+            $zcat "$f"
+        else
+            cat "$f"
+        fi
+    done
+}
+
+# Tail a file with a regular expression that highlights any matches
+# from the tail output.
+HILIGHT=`echo -e '\033[30m\033[43m'`
+NORMAL=`echo -e '\033[0m'`
+retail()
+{
+    local targs
+    while [ $# -gt 1 ]; do
+        targs="${targs} $1"
+        shift
+    done
+
+    if [ $# -ne 1 ]; then
+        echo "usage: retail [<tail_arguments>] <regexp>" 1>&2
+        return 1
+    fi
+
+    exec tail $targs | awk '{if ($0 ~ /'"${1}"'/) {print "'"${HILIGHT}"'" $0 "'"${NORMAL}"'"} else {print}}'
+}
+
+ctl()
+{
+    if [ $# -eq 2 ]; then
+        app=$1
+        action=$2
+        shift
+    else
+        app=$1
+    fi
+
+    if [ $# -ne 1 ]; then
+        echo 'usage: ctl <app> [<action>]' 2>&1
+    else
+        ( cd "$SYMROOT" && $sudo_i ./config/${app}ctl $action )
+    fi
+}
+
+run_unix_tests()
+{
+    if [ $# -lt 1 ]; then
+        echo "usage: run_unix_tests <testname> [<testname>...]" 1>&2
+        return 1
+    fi
+
+    dll="${HOME}/tests"
+    case "$1" in
+        BVT.MiniCloud*)
+            dll="${dll}/BVT/minicloud/BVT.MiniCloud.dll"
+            ;;
+        UnitTests.*)
+            name=`echo "$1" | cut -d. -f2`
+            lc_name=`echo "$name" | tr [A-Z] [a-z]`
+            dll="${dll}/${lc_name}/UnitTests.${name}.dll"
+            ;;
+        *)
+            echo "unknown test: $1" 1>&2
+            return 1
+    esac
+
+    run=
+    for t in "$@"; do
+        run="${run} -run=$t"
+    done
+
+    "${HOME}/tests/run-unix-tests.sh" "${HOME}/tests" "${dll}" \
+        "${HOME}/tests/ManualLinuxTests.xml" 127.0.0.1 120 "$run"
+}
+
+getdays()
+{
+    if [ $# -ne 2 ]; then
+        echo "usage: getdays <start> <count>" 1>&2
+        return 1
+    fi
+
+    t=`date '+%s' -d "$1"`
+    c=$2
+    while [ $c -gt 0 ]; do
+        d=`date '+%Y-%m-%d' -d "@$t"`
+        echo -n " $d"
+        c=`expr $c - 1`
+        t=`expr $t + 86400`
+    done
+}
+
+mabbrv()
+{
+    local abbr inst
+    eval "$(echo "$1" | sed -rn 's/^([^.[:digit:]]+)([[:digit:]]+)$/abbr=\1;inst=\2/p' 2>/dev/null)"
+    inst=$(printf '%02d' $inst)
+    case "$abbr" in
+        f*) echo "frontend${inst}.control";;
+        b*) echo "bootstrap${inst}.control";;
+        d*) echo "database${inst}.control";;
+        m*) echo "monitoring${inst}.control";;
+        o*) echo "operation${inst}.control";;
+        *) echo "$1";;
+    esac
+}
+
+mssh()
+{
+    local host
+
+    if [ $# -ne 1 -a $# -ne 2 ]; then
+        echo "usage: mssh <host>" 1>&2
+        return 1
+    fi
+
+    host=$(mabbrv "$1")
+    echo "Trying ${host} ..."
+    scp -q /home/${SYMUSER}/.mssh_bashrc.$SYMUSER ${host}: && \
+        ssh -A -t $host SYMNAME=$host SYMUSER=$SYMUSER exec bash --rcfile .mssh_bashrc.$SYMUSER -i
+}
+
+mcp()
+{
+    [ "$1" != '-q' ] && chkpt='--checkpoint=.500'
+
+    if [ $# -ne 2 ]; then
+        echo 'usage: mcp [-q] [<srchost>:]<srcpath> [<dsthost>:]<dstpath>' 1>&2
+        return 1
+    fi
+
+    eval "$(echo "$1" | sed -n 's/^\([^:]*\):\(.*\)$/host1="\1";path1="\2"/p')"
+    [ -z "$host1" ] && path1="$1"
+
+    eval "$(echo "$2" | sed -n 's/^\([^:]*\):\(.*\)$/host2="\1";path2="\2"/p')"
+    [ -z "$host2" ] && path2="$2"
+
+    [ -z "$path1" ] && path1='~'
+    [ -z "$path2" ] && path2='~'
+
+    [ -n "$host1" ] && ssh1="ssh $host1"
+    [ -n "$host2" ] && ssh2="ssh $host2"
+
+    set -o pipefail
+    printf "Copying ${path1} to ${path2}: "
+    $ssh1 $sudo tar -C "$(dirname "$path1")" -cps $(basename "$path1") | \
+        $ssh2 $sudo tar -C "$path2" -xps $chkpt
+    rc=$?
+    set +o pipefail
+    echo
+
+    return $rc
+}
+
+httpget()
+{
+    local path
+
+    if [ $# -ne 1 -a $# -ne 2 ]; then
+        echo "usage: httpget <host> [<path>]" 1>&2
+        return 1
+    fi
+
+    if [ $# -eq 2 ]; then
+        path='index.html'
+    else
+        path="$2"
+    fi
+
+    printf "GET /${path} HTTP/1.1\r\nHost: ${1}\r\n\r\n" | nc $1 80
+}
+
+CLK_TCK=`getconf CLK_TCK 2>/dev/null || echo 100`
+PAGE_SIZE=`getconf PAGE_SIZE 2>/dev/null || echo 4096`
+
+fehealth()
+{
+    local pids p upt name jif mup thds
+
+    pids=`pidof mono`
+    top -c -b -n1 $(echo "$pids" | sed -E 's/(^| )/ -p /g')
+
+    upt=`cut -d. -f1 /proc/uptime`
+    for p in $pids; do
+        eval `awk '{print "name="substr($2,2,length($2)-2),"jif="$22}' "/proc/${p}/stat"`
+        mup=`expr $upt - $jif / $CLK_TCK`
+        echo "${p} ${name} uptime: ${mup} seconds since $(date -d "-${mup} seconds")"
+        printf '    '
+        $sudo wc -l "/proc/${p}/maps"
+        echo "    $($sudo ls -d "/proc/${p}/task/"* | wc -l) threads"
+    done
+
+    netstat -tn | awk '
+BEGIN {t=0;s=0;h=0;l=0;m=0;p=0;c=0;o=0}
+{
+  if (/ ESTABLISHED/) {
+    ++t;
+    if (/:22 /) {++s}
+    else if (/:80 /) {++h}
+    else if (/:443 /) {++l}
+    else if (/:3306 /){++m}
+    else if (/:9001 /){++p}
+    else if (/:11211 /) {++c}
+    else {++o}
+  }
+}
+END {print "\nSSH="s,"HTTP="h,"HTTPS="l,"MYSQL="m,"PLACE="p,"MEMCACHE="c,"OTHER="o,"TOTAL="t}
+'
+}
+
+inspect_core()
+{
+    local f
+
+    if [ $# -lt 1 ]; then
+        echo "usage: inspect_core <corefile> [<corefile> ...]" 1>&2
+        return 1
+    fi
+
+    for f in "$@"; do
+        ls -al "$f"
+        $sudo nice gdb --quiet --nx --batch -ex where $(which mono) "$f" | \
+            awk '{if(/^\[New Thread /){c++}else{print}} END {print "\nThread Count:",c}'
+    done
+}
+
+# Downloads s3 client logs. Intended to run on frontend99 or somewhere on EC2.
+getlogs()
+{
+  local node start days logname d h dt prefix
+
+  if [ $# -lt 3 ]; then
+      cat 1>&2 <<EOF
+
+usage: getlogs <nodeId> <startingDate> <daysToRetrieve> <logName>
+
+       nodeId - hex node id, e.g F742E211A7FAC689A7633664489E863DC56EB216
+       startingDate - e.g. 2012-07-01
+       daysToRetrieve - e.g. 2
+       logName - e.g. symformsync
+
+EOF
+        return 1
+  fi
+
+  node=$1
+  start=$2
+  days=$3
+  logname=$4
+
+  for d in `seq -w 0 $days`; do
+      dt="$(date -d "$start $d days" +%Y-%m-%d)"
+      for h in `seq -w 0 23`; do
+          prefix="client-node/${dt}/${logname}.${dt}T${h}00Z.${node}"
+          /root/config/ec2/s3logs --download --prefix="${prefix}"
+      done
+  done
+}
+
+alias upcase=toupper
+toupper()
+{
+    echo $1 | awk '{print toupper($0)}'
+}
+
+getmyip()
+{
+    local scheme
+    if [ $# -eq 0 ]; then scheme=http; else scheme=https; fi
+    echo "$http_get \"${scheme}://ip.appspot.com\""
+    $http_get "${scheme}://ip.appspot.com"
+}
+
+# vi: set filetype=sh

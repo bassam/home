@@ -1,0 +1,31 @@
+export JAVA_HOME="$(/usr/libexec/java_home)"
+export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
+export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
+export AWS_ELB_HOME="/usr/local/Library/LinkedKegs/elb-tools/jars"
+
+# switches the AWS keys to different accounts for use by the AWS CLI tools.
+function aws()
+{
+    local prevacct
+    prevacct=$AWS_ACCOUNT
+
+    if [ $# -eq 0 ]; then
+        env | grep -E "^EC2_|^AWS_" | sort
+    else    
+        export EC2_PRIVATE_KEY="$(/bin/ls "$HOME"/.secrets/aws/$1/pk-*.pem | /usr/bin/head -1)"
+        export EC2_CERT="$(/bin/ls "$HOME"/.secrets/aws/$1/cert-*.pem | /usr/bin/head -1)"
+        export AWS_ACCOUNT=$1
+        export AWS_USER="$(cat ""$HOME"/.secrets/aws/$1/user")"
+    fi
+
+    if [ "$prevacct" != "$AWS_ACCOUNT" ]; then
+        echo "AWS account set to '${AWS_ACCOUNT}' user '${AWS_USER}'"
+    fi
+}
+
+# set the default to production
+aws production
+
+# add the private keys to ssh-agent list
+find "$HOME"/.secrets/aws -name pk-*.pem  | xargs ssh-add 2> /dev/null
+

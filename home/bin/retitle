@@ -1,0 +1,20 @@
+# Changes the terminal's and screen's titles to whatever text passed
+# in (or to the previously set title if no arguments are provided).
+RETITLE_DEFAULT=sh
+RETITLE_PREVIOUS=sh
+function retitle()
+{
+    local title
+    if [ $# -lt 1 ]; then
+        title="$RETITLE_DEFAULT"
+    else
+        RETITLE_DEFAULT="$RETITLE_PREVIOUS"
+        title="$*"
+    fi
+    RETITLE_PREVIOUS="$title"
+    # conditionally sets both a terminal title and a screen title
+    [ "$TERM" = 'screen' ] && echo -n -e "\\033k${title}\\033\\"
+    echo -n -e "\\033]0;${title}\\007"
+}
+
+retitle $*

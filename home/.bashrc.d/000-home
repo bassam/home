@@ -1,0 +1,11 @@
+# paths
+export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:~/bin:/usr/local/opt/ruby/bin:$PATH"
+
+
+# enable git bash completions
+if [ -f `brew --prefix`/etc/bash_completion ]; then
+    . `brew --prefix`/etc/bash_completion
+fi
+
+# Editor
+export EDITOR="edit -w"

@@ -1,0 +1,17 @@
+# See http://www.shellperson.net/using-sudo-with-an-alias/
+alias sudo='sudo '
+alias l="ls -hlG"
+alias ll="ls -halG"
+alias reload=". ~/.profile"
+alias grep="grep --color=auto"
+alias e="edit"
+alias sym="cd ~/symform"
+
+# prevent accidental operations
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias mkdir='mkdir -p'
+
+# symform related aliases
+alias xb='MONO_IOMAP=case xbuild'
