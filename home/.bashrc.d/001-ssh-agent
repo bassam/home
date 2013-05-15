@@ -1,7 +1,9 @@
 # ensure all keys have restricted permissions
 find "${HOME}/.ssh" -type f -print0 | xargs -0 chmod 600
 
-if [ -z "$SSH_AGENT_PID" ]; then
+source "${HOME}/.ssh/agent_env.sh" > /dev/null
+
+if ! `kill -0 $SSH_AGENT_PID > /dev/null 2&>1`; then
     ssh-agent > "${HOME}/.ssh/agent_env.sh"
     source "${HOME}/.ssh/agent_env.sh"
 fi
