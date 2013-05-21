@@ -6,6 +6,7 @@ alias reload=". ~/.profile"
 alias grep="grep --color=auto"
 alias e="edit"
 alias sym="cd ~/symform"
+alias ~="cd ~"
 
 # prevent accidental operations
 alias rm='rm -i'
