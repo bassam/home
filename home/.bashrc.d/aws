@@ -18,8 +18,10 @@ function aws()
         export AWS_USER="$(cat ""$HOME"/.secrets/aws/$1/user")"
     fi
 
-    if [ "$prevacct" != "$AWS_ACCOUNT" ]; then
-        echo "AWS account set to '${AWS_ACCOUNT}' user '${AWS_USER}'"
+    if [ "$SSH_TTY" ]; then
+        if [ "$prevacct" != "$AWS_ACCOUNT" ]; then
+            echo "AWS account set to '${AWS_ACCOUNT}' user '${AWS_USER}'"
+        fi
     fi
 }
 
