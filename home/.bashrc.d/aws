@@ -1,3 +1,8 @@
+# skip if we are in a ssh session without a tty
+if [ "$SSH_CONNECTION" -a ! "$SSH_TTY" ]; then
+    return
+fi
+
 export JAVA_HOME="$(/usr/libexec/java_home)"
 export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
 export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
@@ -18,10 +23,8 @@ function aws()
         export AWS_USER="$(cat ""$HOME"/.secrets/aws/$1/user")"
     fi
 
-    if [ "$SSH_TTY" ]; then
-        if [ "$prevacct" != "$AWS_ACCOUNT" ]; then
-            echo "AWS account set to '${AWS_ACCOUNT}' user '${AWS_USER}'"
-        fi
+    if [ "$prevacct" != "$AWS_ACCOUNT" ]; then
+        echo "AWS account set to '${AWS_ACCOUNT}' user '${AWS_USER}'"
     fi
 }
 
