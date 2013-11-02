@@ -1,10 +1,12 @@
+#!/bin/bash
+
 # skip if we are in a ssh session without a tty
 if [ "$SSH_CONNECTION" -a ! "$SSH_TTY" ]; then
     return
 fi
 
 # ensure all keys have restricted permissions
-grep -Rl -null "BEGIN RSA PRIVATE KEY" "${HOME}/.secrets/*"" | xargs -0 chmod 600
+find "${HOME}"/.secrets -type f -exec grep -q "BEGIN RSA PRIVATE KEY" {} \; -exec chmod 600 {} \;
 
 source "${HOME}/.ssh/agent_env.sh" > /dev/null
 
@@ -13,5 +15,5 @@ if ! `kill -0 $SSH_AGENT_PID > /dev/null 2>&1`; then
     source "${HOME}/.ssh/agent_env.sh"
 
 	# add all private keys to ssh-agent list
-	grep -Rl -null "BEGIN RSA PRIVATE KEY" ~/.secrets/* | xargs ssh-add 
+	find "${HOME}"/.secrets -type f -exec grep -q "BEGIN RSA PRIVATE KEY" {} \; -exec ssh-add {} \;  > /dev/null 2>&1
 fi

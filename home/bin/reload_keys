@@ -1,5 +1,4 @@
 # print current keys
-echo
 echo current keys
 ssh-add -l
 
@@ -7,4 +6,4 @@ ssh-add -D
 
 # add all private keys to ssh-agent list
 echo adding the following keys
-grep -Rl -null "BEGIN RSA PRIVATE KEY" ~/.secrets/* | xargs ssh-add 
+find "${HOME}"/.secrets -type f -exec grep -q "BEGIN RSA PRIVATE KEY" {} \; -exec ssh-add {} \;
