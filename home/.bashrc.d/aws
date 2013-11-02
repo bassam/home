@@ -30,7 +30,3 @@ function aws()
 
 # set the default to production
 aws production
-
-# add the private keys to ssh-agent list
-find "$HOME"/.secrets/aws -name pk-*.pem  | xargs ssh-add 2> /dev/null
-

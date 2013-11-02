@@ -8,4 +8,4 @@ if [ -f `brew --prefix`/etc/bash_completion ]; then
 fi
 
 # Editor
-export EDITOR="edit -w"
+export EDITOR="subl -w"

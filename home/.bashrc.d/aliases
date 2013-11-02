@@ -4,7 +4,7 @@ alias l="ls -hlG"
 alias ll="ls -halG"
 alias reload=". ~/.profile"
 alias grep="grep --color=auto"
-alias e="edit"
+alias e="subl"
 alias sym="cd ~/symform"
 alias ~="cd ~"
 
