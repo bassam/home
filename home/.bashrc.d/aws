@@ -3,6 +3,8 @@ if [ "$SSH_CONNECTION" -a ! "$SSH_TTY" ]; then
     return
 fi
 
+if [ "`uname -s`" == "Darwin" ]; then
+
 export JAVA_HOME="$(/usr/libexec/java_home)"
 export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
 export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
@@ -30,3 +32,5 @@ function aws()
 
 # set the default to production
 aws production
+
+fi

@@ -1,12 +1,27 @@
+#!/bin/bash
+
 # See http://www.shellperson.net/using-sudo-with-an-alias/
 alias sudo='sudo '
-alias l="ls -hlG"
-alias ll="ls -halG"
-alias reload=". ~/.profile"
-alias grep="grep --color=auto"
-alias e="subl"
-alias sym="cd ~/symform"
+
 alias ~="cd ~"
+
+alias reload=". ~/.profile"
+
+alias l='ls -hlG --color=auto'
+alias ls='ls -hF --color=auto'
+alias ll='ls -halG --color=auto'
+alias la='ls -A --color=auto'
+alias dir='ls --color=auto --format=vertical'
+alias vdir='ls --color=auto --format=long'
+
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias rgrep='egrep -R --color=auto'
+
+alias e="subl"
+alias rrsync='rsync -avz --delete --exclude=".svn" '
+alias pstree='\ps auxwwwf'
 
 # prevent accidental operations
 alias rm='rm -i'
@@ -14,5 +29,7 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias mkdir='mkdir -p'
 
+
 # symform related aliases
 alias xb='MONO_IOMAP=case xbuild'
+alias sym="cd ~/symform"

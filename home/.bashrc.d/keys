@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# #######################
+# Mintty Key bindings
+# #######################
+
+if [ "`uname -s`" != "CYGWIN_NT-6.2" ]; then
+	return
+fi
+
+# Ctrl+Left/Right to move by whole words
+bind '"\e[1;5D": backward-word'
+bind '"\e[1;5C": forward-word'
+
+# Ctrl+Left/Right to move by whole words
+bind '"\e[1;5A": beginning-of-line'
+bind '"\e[1;5B": end-of-line'
+
+# Tab for menu-complete, CTRL-TAB for complete, CTRL-Space to list completions
+bind '"\t": menu-complete'
+bind '"\e[Z": complete'
+bind '"\C- ":possible-completions'
+
+# Ctrl+Backspace/Delete to delete whole words
+bind '"\e[3;5~": kill-word'
+bind '"\C-_": backward-kill-word'
+
+# Ctrl+Shift+Backspace/Delete to delete to start/end of the line
+bind '"\e[3;6~": kill-line'
+bind '"\xC2\x9F": backward-kill-line'  # for UTF-8
+
+# Alt-Backspace for undo
+bind '"\e\d": undo'
+
+# Ctrl+Up/Down for searching command history
+bind '"\e[1;5A": history-search-backward'
+bind '"\e[1;5B": history-search-forward'
