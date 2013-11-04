@@ -7,12 +7,17 @@ alias ~="cd ~"
 
 alias reload=". ~/.profile"
 
-alias l='ls -hlG --color=auto'
-alias ls='ls -hF --color=auto'
-alias ll='ls -halG --color=auto'
-alias la='ls -A --color=auto'
-alias dir='ls --color=auto --format=vertical'
-alias vdir='ls --color=auto --format=long'
+if [ "`uname -s`" == "Darwin" ]; then
+	alias l='ls -hlG'
+	alias ls='ls -hF'
+	alias ll='ls -halG'
+	alias la='ls -A'
+else
+	alias l='ls -hlG --color=auto'
+	alias ls='ls -hF --color=auto'
+	alias ll='ls -halG --color=auto'
+	alias la='ls -A --color=auto'
+fi
 
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'

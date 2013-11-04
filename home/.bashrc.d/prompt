@@ -59,13 +59,23 @@ function parse_git_branch {
     fi
 }
 
-function lastcommandfailed() {
-  code=$?
-  if [ $code != 0 ]; then
-    echo -n "${RED}${YELLOW}[$code]${DEFAULT} "
-  fi
-}
-
+if [ "`uname -s`" == "Darwin" ]; then
+  function lastcommandfailed() {
+    code=$?
+    if [ $code != 0 ]; then
+      echo -n $'\033[41;1m\033[33;1m'
+      echo -n "[$code]"
+      echo -n $'\033[0m '
+    fi
+  }
+else
+  function lastcommandfailed() {
+    code=$?
+    if [ $code != 0 ]; then
+      echo -n "${RED_B}${YELLOW}[$code]${DEFAULT} "
+    fi
+  }
+fi  
 
 PROMPT="\$(lastcommandfailed)${YELLOW}\u${GREEN}@\h${CYAN} ${PURPLE}[AWS ${AWS_ACCOUNT}] ${YELLOW}\w\[\$(parse_git_branch)\]\n${YELLOW}> ${DEFAULT}"
 export PS1=$PROMPT
