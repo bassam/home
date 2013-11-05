@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# skip if we are in a ssh session without a tty
-if [ "$SSH_CONNECTION" -a ! "$SSH_TTY" ]; then
-    return
-fi
+# only interactive shells
+[[ "$-" != *i* ]] && return
 
+# only on mac for now
 if [ "`uname -s`" == "Darwin" ]; then
 
 export JAVA_HOME="$(/usr/libexec/java_home)"
