@@ -4,12 +4,12 @@
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 
 if [ "`uname -s`" == "Darwin" ]; then
-	export HOME_PREFIX=`brew --prefix`
+	export HOME_PREFIX=`/usr/local/bin/brew --prefix`
 else
 	export HOME_PREFIX=
 fi
 
-export PATH="$HOME/bin:$HOME_PREFIX/bin:$HOME_PREFIX/sbin"
+export PATH="$HOME/bin:$HOME_PREFIX/bin:$HOME_PREFIX/sbin:$PATH"
 
 # Editor
 export EDITOR="subl -w"
