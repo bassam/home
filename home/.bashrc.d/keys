@@ -1,24 +1,23 @@
 #!/bin/bash
 
-# #######################
-# Mintty Key bindings
-# #######################
+# only interactive shells
+[[ "$-" != *i* ]] && return
 
-if [ "`uname -s`" != "CYGWIN_NT-6.2" ]; then
-	return
-fi
+# #######################
+# Key bindings
+# #######################
 
 # Ctrl+Left/Right to move by whole words
 bind '"\e[1;5D": backward-word'
 bind '"\e[1;5C": forward-word'
 
-# Ctrl+Left/Right to move by whole words
+# Ctrl+Up/Down to move to beginning and end of line
 bind '"\e[1;5A": beginning-of-line'
 bind '"\e[1;5B": end-of-line'
 
 # Tab for menu-complete, CTRL-TAB for complete, CTRL-Space to list completions
-bind '"\t": menu-complete'
-bind '"\e[Z": complete'
+bind '"\t": complete'
+bind '"\e[Z": menu-complete'
 bind '"\C- ":possible-completions'
 
 # Ctrl+Backspace/Delete to delete whole words
@@ -32,6 +31,11 @@ bind '"\xC2\x9F": backward-kill-line'  # for UTF-8
 # Alt-Backspace for undo
 bind '"\e\d": undo'
 
-# Ctrl+Up/Down for searching command history
-bind '"\e[1;5A": history-search-backward'
-bind '"\e[1;5B": history-search-forward'
+# #######################
+# Terminal
+# #######################
+
+# Unix terminal line drivers have a flow control feature that allow terminal output to be stopped with Ctrl+S and restarted with Ctrl+Q. 
+# However, due to the scrollback feature in modern terminal emulators, there is little need for this. 
+# Hence, to make those key combinations available for other uses, disable flow control with this command:
+stty -ixon

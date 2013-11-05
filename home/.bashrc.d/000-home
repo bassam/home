@@ -1,13 +1,15 @@
-# enable git bash completions
-if [ "`uname -s`" == "Darwin" ]; then
-  export PATH="/usr/local/bin:/usr/local/sbin:~/bin:/usr/local/opt/ruby/bin:$PATH"
+#!/bin/bash
 
-  if [ -f `brew --prefix`/etc/bash_completion ]; then
-      . `brew --prefix`/etc/bash_completion
-  fi
+# Path
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+if [ "`uname -s`" == "Darwin" ]; then
+	export HOME_PREFIX=`brew --prefix`
+else
+	export HOME_PREFIX=
 fi
 
-export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/bin:$HOME_PREFIX/bin:$HOME_PREFIX/sbin"
 
 # Editor
 export EDITOR="subl -w"

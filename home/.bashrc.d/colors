@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# only interactive shells
+[[ "$-" != *i* ]] && return
+
 if [ "`uname -s`" == "Darwin" ]; then
 	export CLICOLOR=1
 	export LSCOLORS=exfxcxdxbxexexabagacad

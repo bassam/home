@@ -1,9 +1,13 @@
 #!/bin/bash
 
+# only interactive shells
+[[ "$-" != *i* ]] && return
+
 # See http://www.shellperson.net/using-sudo-with-an-alias/
 alias sudo='sudo '
 
 alias ~="cd ~"
+alias ..="cd .."
 
 alias reload=". ~/.profile"
 
@@ -33,7 +37,6 @@ alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 alias mkdir='mkdir -p'
-
 
 # symform related aliases
 alias xb='MONO_IOMAP=case xbuild'

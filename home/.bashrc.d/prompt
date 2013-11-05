@@ -1,55 +1,31 @@
 #!/bin/bash
 
-if [ "`uname -s`" == "Darwin" ]; then
+# only interactive shells
+[[ "$-" != *i* ]] && return
 
-  # colors
-  BLACK='\[\033[0;30m\]'
-  RED='\[\033[0;31m\]'
-  GREEN='\[\033[0;32m\]'
-  YELLOW='\[\033[0;33m\]'
-  BLUE='\[\033[0;34m\]'
-  PURPLE='\[\033[0;35m\]'
-  CYAN='\[\033[0;36m\]'
-  WHITE='\[\033[0;37m\]'
+# see http://mywiki.wooledge.org/BashFAQ/053
 
-  # background colors
-  BLACK_B='\[\033[40m\]'
-  RED_B='\[\033[41m\]'
-  GREEN_B='\[\033[42m\]'
-  YELLOW_B='\[\033[43m\]'
-  BLUE_B='\[\033[44m\]'
-  PURPLE_B='\[\033[45m\]'
-  CYAN_B='\[\033[46m\]'
-  WHITE_B='\[\033[47m\]'
+# colors
+BLACK="$(tput setaf 0)"
+RED="$(tput setaf 1)"
+GREEN="$(tput setaf 2)"
+YELLOW="$(tput setaf 3)"
+BLUE="$(tput setaf 4)"
+PURPLE="$(tput setaf 5)"
+CYAN="$(tput setaf 6)"
+WHITE="$(tput setaf 7)"
 
-  DEFAULT='\[\033[0m\]'
+# colors
+BLACK_B="$(tput setab 0)"
+RED_B="$(tput setab 1)"
+GREEN_B="$(tput setab 2)"
+YELLOW_B="$(tput setab 3)"
+BLUE_B="$(tput setab 4)"
+PURPLE_B="$(tput setab 5)"
+CYAN_B="$(tput setab 6)"
+WHITE_B="$(tput setab 7)"
 
-else
-  # requires ncurses to be installed
-
-  # colors
-  BLACK="$(tput setaf 0)"
-  RED="$(tput setaf 1)"
-  GREEN="$(tput setaf 2)"
-  YELLOW="$(tput setaf 3)"
-  BLUE="$(tput setaf 4)"
-  PURPLE="$(tput setaf 5)"
-  CYAN="$(tput setaf 6)"
-  WHITE="$(tput setaf 7)"
-
-  # colors
-  BLACK_B="$(tput setab 0)"
-  RED_B="$(tput setab 1)"
-  GREEN_B="$(tput setab 2)"
-  YELLOW_B="$(tput setab 3)"
-  BLUE_B="$(tput setab 4)"
-  PURPLE_B="$(tput setab 5)"
-  CYAN_B="$(tput setab 6)"
-  WHITE_B="$(tput setab 7)"
-
-  DEFAULT="$(tput sgr0)"
-
-fi
+DEFAULT="$(tput sgr0)"
 
 function parse_git_branch {
     ref=$(git branch 2>/dev/null|grep \*|sed 's/* //') || return
@@ -59,24 +35,13 @@ function parse_git_branch {
     fi
 }
 
-if [ "`uname -s`" == "Darwin" ]; then
-  function lastcommandfailed() {
-    code=$?
-    if [ $code != 0 ]; then
-      echo -n $'\033[41;1m\033[33;1m'
-      echo -n "[$code]"
-      echo -n $'\033[0m '
-    fi
-  }
-else
-  function lastcommandfailed() {
-    code=$?
-    if [ $code != 0 ]; then
-      echo -n "${RED_B}${YELLOW}[$code]${DEFAULT} "
-    fi
-  }
-fi  
+function lastcommandfailed() {
+  code=$?
+  if [ $code != 0 ]; then
+    echo -n "\[${RED_B}\]\[${YELLOW}\][$code]\[${DEFAULT}\] "
+  fi
+}
 
-PROMPT="\$(lastcommandfailed)${YELLOW}\u${GREEN}@\h${CYAN} ${PURPLE}[AWS ${AWS_ACCOUNT}] ${YELLOW}\w\[\$(parse_git_branch)\]\n${YELLOW}> ${DEFAULT}"
+PROMPT="\$(lastcommandfailed)\[${YELLOW}\]\u\[${GREEN}\]@\h\[${CYAN}\] \[${PURPLE}\][AWS ${AWS_ACCOUNT}] \[${YELLOW}\]\w\[\$(parse_git_branch)\]\n\[${YELLOW}\]> \[${DEFAULT}\]"
 export PS1=$PROMPT
 
