@@ -3,7 +3,7 @@
 function subl()
 {
 	if [ "`uname -s`" == "Darwin" ]; then
-		/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl $*
+		/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl $*
 	else
 	    local args
 	    for a in "$@"; do
