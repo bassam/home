@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # skip if we are in a ssh session without a tty
 if [ "$SSH_CONNECTION" -a ! "$SSH_TTY" ]; then
     return
