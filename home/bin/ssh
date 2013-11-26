@@ -6,7 +6,9 @@ ssh()
 
     sshconfig=$(get_ssh_config) 
     /usr/bin/ssh -A -F "$sshconfig" "$@"
+    exitCode=$?
     rm "$sshconfig"
+    return $exitCode
 }
 
 ssh $*

@@ -5,8 +5,9 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 
 if [ "`uname -s`" == "Darwin" ]; then
 	export HOME_PREFIX=`/usr/local/bin/brew --prefix`
-else
+elif [ "`uname -s`" == "CYGWIN_NT-6.2" ]; then
 	export HOME_PREFIX=
+	export PATH=`cygpath $SYSTEMROOT`/system32:`cygpath $SYSTEMROOT`/Microsoft.NET/Framework64/v4.0.30319:$PATH
 fi
 
 export PATH="$HOME/bin:$HOME_PREFIX/bin:$HOME_PREFIX/sbin:$PATH"

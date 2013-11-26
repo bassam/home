@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export NOSHAREDKEYS=1
+export EROOT=~/symform/
+export PYTHONPATH=${EROOT}scripts:${EROOT}scripts/config
