@@ -1,0 +1,3 @@
+home/.ssh/authorized_keys
+home/.ssh/agent_env.sh
+home/.ssh/known_hosts

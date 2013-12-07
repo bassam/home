@@ -4,7 +4,7 @@ ssh()
 {
     local sshconfig
 
-    sshconfig=$(get_ssh_config) 
+    sshconfig=$(~/bin/get_ssh_config) 
     /usr/bin/ssh -A -F "$sshconfig" "$@"
     exitCode=$?
     rm "$sshconfig"
