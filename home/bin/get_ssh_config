@@ -6,7 +6,7 @@ get_ssh_config()
     
     tmpdir=/tmp
     case "$(uname -s)" in
-        CYGWIN_NT-6.2|Linux)
+        CYGWIN_NT*|Linux)
             sshconfig=$(mktemp -u --suffix=._ssh_config)
             ;;
         Darwin)
