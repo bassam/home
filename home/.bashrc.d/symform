@@ -3,3 +3,4 @@
 export NOSHAREDKEYS=1
 export EROOT=~/symform/
 export PYTHONPATH=${EROOT}scripts:${EROOT}scripts/config
+export PATH=$PATH:$EROOT/tools/DeployMan
