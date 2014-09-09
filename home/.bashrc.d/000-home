@@ -10,6 +10,8 @@ if [ "`uname -s`" == "Darwin" ]; then
 elif [[ `uname -s` = CYGWIN_NT* ]]; then
 	export HOME_PREFIX=
 	export PATH=`cygpath $SYSTEMROOT`/system32:`cygpath $SYSTEMROOT`/Microsoft.NET/Framework64/v4.0.30319:$PATH
+elif [[ `uname -s` = Linux ]]; then
+        export PATH=$PATH
 fi
 
 export PATH="$HOME/bin:$HOME_PREFIX/bin:$HOME_PREFIX/sbin:$PATH"
