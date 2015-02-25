@@ -17,6 +17,6 @@ if ! `kill -0 $SSH_AGENT_PID > /dev/null 2>&1`; then
     ssh-agent > "${HOME}/.ssh/agent_env.sh"
     source "${HOME}/.ssh/agent_env.sh"
 
-	# add all private keys to ssh-agent list
-	find "${HOME}"/.secrets -type f -exec grep -q "BEGIN RSA PRIVATE KEY" {} \; -exec ssh-add {} \;  > /dev/null 2>&1
+    # add all private keys to ssh-agent list
+    find "${HOME}"/.secrets -type f -exec grep -q "BEGIN RSA PRIVATE KEY" {} \; -exec ssh-add {} \;  > /dev/null 2>&1
 fi

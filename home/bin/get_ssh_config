@@ -8,9 +8,15 @@ get_ssh_config()
     case "$(uname -s)" in
         CYGWIN_NT*|Linux)
             sshconfig=$(mktemp -u --suffix=._ssh_config)
+	
+	    # cleanup first
+            find $tmpdir/ -name '*.ssh_config' -exec rm {} \;  2> /dev/null
             ;;
         Darwin)
             sshconfig=$(mktemp -u -t ._ssh_config)
+	    
+	    # cleanup first
+            find $tmpdir/ -name '.ssh_config*' -exec rm {} \;  2> /dev/null
             ;;
         *)
             echo 'unsupported OS'
@@ -18,10 +24,8 @@ get_ssh_config()
             ;;
     esac
 
-    # cleanup first
-    rm $tmpdir/._ssh_config* 2>/dev/null
 
-    find "$HOME"/.ssh -name config -print0 | xargs -0 cat >"$sshconfig" 2> /dev/null
+    find "$HOME"/.ssh/ -name '*config' -print0 | xargs -0 cat >"$sshconfig" 2> /dev/null
     echo "$sshconfig"
 }
 
