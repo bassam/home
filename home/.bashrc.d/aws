@@ -7,7 +7,7 @@
 if [ "`uname -s`" == "Darwin" ]; then
 
 export JAVA_HOME="$(/usr/libexec/java_home)"
-export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
+export EC2_HOME="/usr/local/Cellar/ec2-api-tools/1.6.12.2/libexec"
 export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
 export AWS_ELB_HOME="/usr/local/Library/LinkedKegs/elb-tools/jars"
 
