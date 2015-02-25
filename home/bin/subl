@@ -4,6 +4,8 @@ function subl()
 {
 	if [ "`uname -s`" == "Darwin" ]; then
 		/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl $*
+	elif [ `uname -s` == "Linux" ]; then
+		/opt/sublime_text/sublime_text $*
 	else
 	    local args
 	    for a in "$@"; do
