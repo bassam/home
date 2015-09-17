@@ -1,0 +1,8 @@
+#!/bin/bash
+
+generate_ssh_config()
+{
+    find "${HOME}"/.ssh/ -name '*.config' -print0 | xargs -0 cat > "${HOME}"/.ssh/config 2> /dev/null
+}
+
+generate_ssh_config
