@@ -12,7 +12,7 @@ export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
 export AWS_ELB_HOME="/usr/local/Library/LinkedKegs/elb-tools/jars"
 
 # switches the AWS keys to different accounts for use by the AWS CLI tools.
-function aws()
+function aws-config()
 {
     local prevacct
     prevacct=$AWS_ACCOUNT
@@ -32,6 +32,6 @@ function aws()
 }
 
 # set the default to production
-aws production
+aws-config production
 
 fi
