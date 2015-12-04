@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if which git &>/dev/null; then
+	git config --global user.email "bassam@symform.com"
+	git config --global user.name "Bassam Tabbara"
+	git config --global push.default simple
+	git config --global color.ui true
+fi

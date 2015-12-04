@@ -1,5 +1,0 @@
-if [[ `uname -s` == "Linux" ]]; then
-	if [[ -d $HOME/Projects/quantum/depot_tools ]]; then
-		export PATH=$HOME/Projects/quantum/depot_tools:$PATH
-	fi
-fi
