@@ -1,12 +1,8 @@
 #!/bin/bash
 
 if [[ `uname -s` == "Linux" ]]; then
-  if [[ ! -x /usr/local/bin/repo ]]; then
-  	echo Install repo tool
-    sudo curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo
-    sudo chmod a+x /usr/local/bin/repo
-  fi
-
-  umask 22
+	if [[ -d ~/Projects/coreos-mantle/bin ]]; then
+		export PATH=$PATH:~/Projects/coreos-mantle/bin
+	fi
 fi
 

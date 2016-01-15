@@ -2,3 +2,10 @@
 
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
+
+token=$(cat ~/.secrets/github/token)
+cat > ~/.netrc <<EOF
+machine github.com
+  login bassamtabbara
+  password ${token}
+EOF
