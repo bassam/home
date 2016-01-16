@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+if [[ `uname -s` == "Linux" ]]; then
+	/usr/local/VSCode-linux-x64/Code "$@" 2>/dev/null &
+fi
