@@ -1,5 +1,8 @@
 #!/bin/bash -e
 
 if [[ `uname -s` == "Linux" ]]; then
-	/usr/local/VSCode-linux-x64/Code "$@" 2>/dev/null &
+	if (( `sysctl -n fs.inotify.max_user_watches` < 32767 )); then
+		sudo sysctl -w fs.inotify.max_user_watches=32767 > /dev/null
+	fi
+	/usr/share/code/bin/code "$@" 2>/dev/null &
 fi
