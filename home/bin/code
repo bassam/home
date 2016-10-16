@@ -2,4 +2,6 @@
 
 if [[ `uname -s` == "Linux" ]]; then
 	/usr/local/VSCode-linux-x64/Code "$@" 2>/dev/null &
+elif  [[ `uname -s` == "Darwin" ]]; then
+  VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;
 fi
