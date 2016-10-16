@@ -6,5 +6,8 @@ if [ "`uname -s`" == "Linux" ]; then
 		sudo apt-get install ccache
 	fi
 	export CCACHE_DIR="${HOME}/.ccache"
+	cat <<EOF > ~/.ccache/ccache.conf
+max_size = 10G
+EOF
 fi
 
