@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "`uname -s`" == "Linux" ]; then
+if [[ "`uname -s`" == "Linux" || "`uname -s`" == "Darwin" ]]; then
 	if ! which ccache > /dev/null; then
 		echo installing ccache
 		sudo apt-get install ccache
