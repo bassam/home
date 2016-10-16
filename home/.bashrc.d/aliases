@@ -38,6 +38,7 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias mkdir='mkdir -p'
 
-# symform related aliases
-alias xb='MONO_IOMAP=case xbuild'
-alias sym="cd ~/symform"
+# make related aliases
+alias pmake="make -j3"
+alias dmake="build/run make -j3"
+

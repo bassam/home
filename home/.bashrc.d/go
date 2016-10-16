@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export GOPATH=$HOME/go
+export GOPATH=$HOME/Projects
 export PATH=$PATH:$GOPATH/bin
 
 token=$(cat ~/.secrets/github/token)
