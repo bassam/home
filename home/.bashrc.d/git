@@ -9,4 +9,4 @@ fi
 
 # git related aliases
 alias gitsub="git submodule update --init --recursive"
-
+alias gitf="git fetch --all --prune"

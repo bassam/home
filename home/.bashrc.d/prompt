@@ -42,6 +42,6 @@ function lastcommandfailed() {
   fi
 }
 
-PROMPT="\[${RED_B}\]\[${YELLOW}\]\$(lastcommandfailed)\[${DEFAULT}\]\[${YELLOW}\]\u\[${GREEN}\]@\h\[${CYAN}\] \[${PURPLE}\][AWS ${AWS_ACCOUNT}] \[${YELLOW}\]\w\[\$(parse_git_branch)\]\n\[${YELLOW}\]> \[${DEFAULT}\]"
+PROMPT="\[${RED_B}\]\[${YELLOW}\]\$(lastcommandfailed)\[${DEFAULT}\]\[${YELLOW}\]\u\[${GREEN}\]@\h\[${CYAN}\] \[${PURPLE}\]\[${YELLOW}\]\w\[\$(parse_git_branch)\]\n\[${YELLOW}\]> \[${DEFAULT}\]"
 export PS1=$PROMPT
 
