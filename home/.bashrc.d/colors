@@ -10,5 +10,5 @@ if [ "`uname -s`" == "Darwin" ]; then
 	export GREP_OPTIONS='--color=auto'
 
 	# colorizer (see http://noiseandheat.com/blog/2011/12/os-x-lion-terminal-colours/)
-	source `brew --prefix grc`/etc/grc.bashrc
+	source `brew --prefix`/etc/grc.bashrc
 fi

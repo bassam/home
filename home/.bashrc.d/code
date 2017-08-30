@@ -1,0 +1,11 @@
+#!/bin/bash -e
+
+if [[ `uname -s` == "Linux" ]]; then
+  if (( `sysctl -n fs.inotify.max_user_watches` < 524288 )); then
+    echo updating fs.inotify.max_user_watches
+    sudo sysctl -w fs.inotify.max_user_watches=524288 > /dev/null
+  fi
+  export PATH="$PATH:/usr/share/code/bin/code"
+elif  [[ `uname -s` == "Darwin" ]]; then
+  export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+fi

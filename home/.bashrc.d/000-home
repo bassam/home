@@ -17,4 +17,4 @@ fi
 export PATH="$HOME/bin:$HOME_PREFIX/bin:$HOME_PREFIX/sbin:$PATH"
 
 # Editor
-export EDITOR="subl -w"
+export EDITOR="code --wait"
