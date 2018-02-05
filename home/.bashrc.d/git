@@ -3,18 +3,24 @@
 if which git &>/dev/null; then
 	rm -fr ~/.gitconfig
 
-	git config --global user.email "bassam@tabbara.com"
+	git config --global user.email "bassam@upbound.io"
 	git config --global user.name "Bassam Tabbara"
 	git config --global push.default simple
 	git config --global color.ui true
 
 	git config --global diff.tool "code --wait --diff \$LOCAL \$REMOTE"
 	git config --global difftool.prompt false
+
+	git config --global core.excludesfile ~/.gitignore
+        
+        git config --global user.signingkey "A47A68EE6BC1F07326C966A5401196135BB925FB"
+	git config --global commit.gpgsign "true"
 fi
 
 # git related aliases
 alias gitsub="git submodule update --init --recursive"
 alias gitf="git fetch --all --prune"
+alias gitc="git commit -s"
 
 # set the git prompt
 if [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
