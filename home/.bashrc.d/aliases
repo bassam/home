@@ -11,7 +11,7 @@ alias ..="cd .."
 
 alias reload=". ~/.profile"
 
-if [ "`uname -s`" == "Darwin" ]; then
+if [ "`uname -s`" = "Darwin" ]; then
 	alias l='ls -hlG'
 	alias ls='ls -hF'
 	alias ll='ls -halG'

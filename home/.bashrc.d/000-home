@@ -3,7 +3,7 @@
 # Path
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
-if [ "`uname -s`" == "Darwin" ]; then
+if [ "`uname -s`" = "Darwin" ]; then
 	export HOME_PREFIX=`brew --prefix`
 	# set ruby gem home
 	export PATH=$PATH:`brew info ruby|grep /bin|tr -d ' '`

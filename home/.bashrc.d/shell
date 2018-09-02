@@ -8,7 +8,7 @@
 # #######################
 
 # If set, bash matches filenames in a case-insensitive fashion when performing pathname expansion  (see  Pathname  Expansion above).
-shopt -s nocaseglob
+#shopt -s nocaseglob
 
 # Don't use ^D to exit
 set -o ignoreeof
@@ -18,10 +18,10 @@ set completion-ignore-case on
 
 # When changing directory small typos can be ignored by bash
 # for example, cd /vr/lgo/apaache would find /var/log/apache
-shopt -s cdspell
+#shopt -s cdspell
 
 # If set, bash checks the window size after each command and, if necessary, updates the values of LINES and COLUMNS.
-shopt -s checkwinsize
+#shopt -s checkwinsize
 
 # #######################
 # Completion options
@@ -36,7 +36,7 @@ shopt -s checkwinsize
 # #######################
 
 # Make bash append rather than overwrite the history on disk
-shopt -s histappend
+#shopt -s histappend
 
 # Don't put duplicate lines in the history.
 export HISTCONTROL="ignoredups"
