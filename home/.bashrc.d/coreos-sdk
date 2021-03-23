@@ -1,8 +1,0 @@
-#!/bin/bash
-
-if [[ `uname -s` == "Linux" ]]; then
-	if [[ -d ~/Projects/coreos-mantle/bin ]]; then
-		export PATH=$PATH:~/Projects/coreos-mantle/bin
-	fi
-fi
-
