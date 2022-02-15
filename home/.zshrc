@@ -106,3 +106,4 @@ if [ -d $HOME/.bashrc.d ]; then
 fi
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+export GPG_TTY=$(tty)

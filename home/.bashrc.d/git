@@ -17,7 +17,7 @@ if which git &>/dev/null; then
 		git config --global credential.helper osxkeychain        
 	fi
 	git config --global credential.helper "cache --timeout=86400"
-    git config --global user.signingkey "A47A68EE6BC1F07326C966A5401196135BB925FB"
+    git config --global user.signingkey "07F9A5E064C0FA04"
 	git config --global commit.gpgsign "true"
 fi
 
