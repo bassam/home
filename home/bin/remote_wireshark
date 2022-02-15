@@ -1,8 +1,0 @@
-#! /bin/bash
-
-remote_writeshark() 
-{
-    ssh $1 tcpdump -s 0 -U -n -w - not port 22 | wireshark -k -i - &
-}
-
-remote_writeshark $*

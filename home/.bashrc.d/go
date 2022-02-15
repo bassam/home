@@ -1,11 +1,11 @@
 #!/bin/bash
 
-export GOPATH=$HOME/Projects
+export GOPATH=$HOME/proj
 export PATH=$PATH:$GOPATH/bin
 
 token=$(cat ~/.secrets/github/token)
 cat > ~/.netrc <<EOF
 machine github.com
-  login bassamtabbara
+  login bassam
   password ${token}
 EOF
