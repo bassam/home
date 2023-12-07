@@ -13,12 +13,8 @@ if which git &>/dev/null; then
 
 	git config --global core.excludesfile ~/.gitignore
 
-#	if [ "`uname -s`" = "Darwin" ]; then
-#		git config --global credential.helper osxkeychain        
-#	fi
-#	git config --global credential.helper "cache --timeout=86400"
-    git config --global user.signingkey "07F9A5E064C0FA04"
-	git config --global commit.gpgsign "true"
+    git config --global user.signingkey "B0F512CC9F90CB19"
+    git config --global commit.gpgsign "true"
 fi
 
 # git related aliases
@@ -37,5 +33,3 @@ cat <<EOF > ~/.gitignore
 .DS_Store
 .vscode/
 EOF
-
-# brew install git-credential-manager

@@ -3,6 +3,7 @@
 export GOPATH=$HOME/proj
 export PATH=$PATH:$GOPATH/bin
 
+# use the same token from gh
 token=$(cat ~/.secrets/github/token)
 cat > ~/.netrc <<EOF
 machine github.com

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# install gh
+if ! brew list gh &>/dev/null; then
+    brew install gh
+fi
+
+# login to github
+if ! gh auth status &>/dev/null; then
+    gh auth login
+fi
+
+# save the token for others to use
+mkdir -p ~/.secrets/github
+gh auth token > ~/.secrets/github/token
+
+# setup git
+gh auth setup-git
